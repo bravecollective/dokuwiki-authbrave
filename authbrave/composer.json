@@ -1,0 +1,15 @@
+{
+	"name": "bravecollective-dokuwikiauth",
+	"description": "Auth for DokuWiki",
+	"keywords": ["eve-online", "dokuwiki", "brave"],
+	"license": "MIT",
+	"repositories": [
+	    {
+		"url": "https://github.com/bravecollective/php-api.git",
+		"type": "git"
+	    }
+	],
+	"require": {
+		"bravecollective/php-api": "dev-master"
+	}
+}

@@ -1,0 +1,7 @@
+base   authbrave
+author kiu
+email  kiu@gmx.net
+date   2014-04-27
+name   authbrave plugin
+desc   Authentication plugin for using BRAVE Collective core servies with dokuwiki
+url    http://github.com/kiu/dokuwiki-authbrave

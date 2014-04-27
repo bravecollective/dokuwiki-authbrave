@@ -1,0 +1,35 @@
+-------------------------------------------------------------
+
+Move authbrave folder to lib/plugins/
+
+-------------------------------------------------------------
+
+Edit and rename config.php.dist to config.php
+
+-------------------------------------------------------------
+
+$ curl -sS https://getcomposer.org/installer | php
+$ mv composer.phar /usr/local/bin/composer
+$ composer install
+
+-------------------------------------------------------------
+
+conf/dokuwiki.php org/conf/dokuwiki.php
+    $conf['profileconfirm'] = 0;
+
+inc/html.php org/inc/html.php : html_login()
+     require('lib/plugins/authbrave/config.php');
+     print '<a href="' . $cfg_url_auth_init . '">auth</a>';
+
+-------------------------------------------------------------
+
+$ sqlite3 auth.db
+    create table session(sessionid text, charid integer, created integer);
+    create table user(user text, mail text, groups text, charid integer, char text, corpid integer, corp text, allianceid integer, alliance text);
+    create table grp(grp text, criteria text);
+    insert into grp values('admin', 'charid_92938653');
+    .exit
+$ chmod go+rw auth.db
+$ chmod go+rw path/to/authdb
+
+-------------------------------------------------------------
