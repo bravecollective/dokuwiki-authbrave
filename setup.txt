@@ -14,7 +14,7 @@ $ composer install
 
 -------------------------------------------------------------
 
-conf/dokuwiki.php org/conf/dokuwiki.php
+conf/dokuwiki.php
     $conf['profileconfirm'] = 0;
 
 inc/html.php : html_login()
