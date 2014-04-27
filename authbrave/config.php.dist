@@ -3,6 +3,8 @@
 // directory needs to be writable by the webserver, but never be served to users
 $cfg_auth_db_path = 'path to your auth.db';
 
+$cfg_core_endpoint = 'https://core.braveineve.com/api';
+
 $cfg_url_base = 'https://wiki.example.com';
 $cfg_url_login = $cfg_url_base . '?do=login';
 

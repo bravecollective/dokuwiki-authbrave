@@ -7,7 +7,7 @@ require('config.php');
 
 try {
 
-    $api = new Brave\API('https://core.braveineve.com/api', $cfg_core_application_id, $cfg_core_private_key, $cfg_core_public_key);
+    $api = new Brave\API($cfg_core_endpoint, $cfg_core_application_id, $cfg_core_private_key, $cfg_core_public_key);
 
     $info_data = array(
 	'success' => $cfg_url_auth_success,
