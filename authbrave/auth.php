@@ -2,8 +2,8 @@
 /**
  * DokuWiki Plugin authbrave (Auth Component)
  *
- * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
- * @author  name <email>
+ * @license MIT http://opensource.org/licenses/MIT
+ * @author  kiu kiu@gmx.net
  */
 
 // must be run within Dokuwiki
