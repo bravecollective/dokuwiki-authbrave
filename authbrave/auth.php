@@ -134,7 +134,7 @@ class auth_plugin_authbrave extends DokuWiki_Auth_Plugin {
      */
     public function getUserData($user) {
 	$stm = $this->db->prepare('SELECT * FROM user WHERE user = :user;');
-	$stm->bindValue(':user', $row['user']);
+	$stm->bindValue(':user', $user);
 	$result = $stm->execute();
 	if (!$result) die("Cannot execute query.");
 
