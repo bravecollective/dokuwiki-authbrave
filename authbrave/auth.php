@@ -133,10 +133,16 @@ class auth_plugin_authbrave extends DokuWiki_Auth_Plugin {
      * @return  array containing user data or false
      */
     public function getUserData($user) {
-	$row = $this->getUser();
+	$stm = $this->db->prepare('SELECT * FROM user WHERE user = :user;');
+	$stm->bindValue(':user', $row['user']);
+	$result = $stm->execute();
+	if (!$result) die("Cannot execute query.");
+
+	$row = $result->fetchArray();
 	if (!$row) {
 	    return false;
 	}
+
 	return array('name' => $row['char'], 'email' => $row['mail'], 'grps' => explode(',', $row['grp']));
     }
 
