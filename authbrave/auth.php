@@ -9,46 +9,36 @@
 // must be run within Dokuwiki
 if(!defined('DOKU_INC')) die();
 
+
 class auth_plugin_authbrave extends DokuWiki_Auth_Plugin {
 
     private $db = 0;
 
     private function getCookie() {
-	$cookie = $_COOKIE['braveauth'];
-	if (!empty($cookie)) {
-	    $cookie = preg_replace("/[^A-Za-z0-9]/", '', $cookie);
-	}
-	if (empty($cookie)) {
-	    $ph = new PassHash();
-	    $cookie = $ph->gen_salt(32);
-	    if (!headers_sent()) {
-		setcookie('braveauth', $cookie, time() + (1000 * 60 * 60 * 24 * 7), '/', null, true, true);
-	    }
-	}
-	return $cookie;
+	require('config.php');
+	return preg_replace("/[^A-Za-z0-9]/", '', $_COOKIE[$cfg_cookie_name]);
     }
 
     private function getUser() {
+	require('config.php');
 	$stm = $this->db->prepare('DELETE FROM session WHERE created < :time;');
-	$stm->bindValue(':time', time() - (1000 * 60 * 60 * 24 * 1));
-	$result = $stm->execute();
+	$stm->bindValue(':time', time() - $cfg_expire_session);
+	if (!$stm->execute()) { die('cleanup session failed'); };
 
 	$stm = $this->db->prepare('SELECT charid FROM session WHERE sessionid = :sessionid;');
 	$stm->bindValue(':sessionid', $this->getCookie());
-	$result = $stm->execute();
-	if (!$result) die("Cannot execute query.");
-
-	$row = $result->fetchArray();
+	if (!$stm->execute()) { die('find session failed'); };
+	
+	$row = $stm->fetch();
 	if (!$row) {
 	    return false;
 	}
 
 	$stm = $this->db->prepare('SELECT * FROM user WHERE charid = :charid;');
 	$stm->bindValue(':charid', $row['charid']);
-	$result = $stm->execute();
-	if (!$result) die("Cannot execute query.");
+	if (!$stm->execute()) { die('find user failed'); };
 
-	$row = $result->fetchArray();
+	$row = $stm->fetch();
 	if (!$row) {
 	    return false;
 	}
@@ -63,8 +53,13 @@ class auth_plugin_authbrave extends DokuWiki_Auth_Plugin {
         parent::__construct(); // for compatibility
 
 	require('config.php');
-	$this->db = new SQLite3($cfg_auth_db_path . '/auth.db', SQLITE3_OPEN_READWRITE);
-	if (!$this->db) die ('auth database init failed');
+
+	try {
+	    $this->db = new PDO($cfg_sql_url, $cfg_sql_user, $cfg_sql_pass);
+	} catch (PDOException $e) {
+	    $this->success = false;
+	    return;
+	}
 
         $this->cando['modMail']     = true; // can emails be changed?
         $this->cando['external']    = true; // does the module do external auth checking?
@@ -87,7 +82,7 @@ class auth_plugin_authbrave extends DokuWiki_Auth_Plugin {
     public function logOff() {
 	$stm = $this->db->prepare('DELETE FROM session WHERE sessionid = :sessionid;');
 	$stm->bindValue(':sessionid', $this->getCookie());
-	$result = $stm->execute();
+	if (!$stm->execute()) { die('logoff failed'); };
     }
 
     /**
@@ -109,11 +104,11 @@ class auth_plugin_authbrave extends DokuWiki_Auth_Plugin {
 	}
 
         // set the globals if authed
-        $USERINFO['name'] = $row['char'];
+        $USERINFO['name'] = $row['charname'];
         $USERINFO['mail'] = $row['mail'];
         $USERINFO['grps'] = explode(',', $row['groups']);
-        $_SERVER['REMOTE_USER'] = $row['user'];
-        $_SESSION[DOKU_COOKIE]['auth']['user'] = $row['user'];
+        $_SERVER['REMOTE_USER'] = $row['username'];
+        $_SESSION[DOKU_COOKIE]['auth']['user'] = $row['username'];
 //        $_SESSION[DOKU_COOKIE]['auth']['pass'] = $pass;
         $_SESSION[DOKU_COOKIE]['auth']['info'] = $USERINFO;
         return true;
@@ -133,17 +128,16 @@ class auth_plugin_authbrave extends DokuWiki_Auth_Plugin {
      * @return  array containing user data or false
      */
     public function getUserData($user) {
-	$stm = $this->db->prepare('SELECT * FROM user WHERE user = :user;');
-	$stm->bindValue(':user', $user);
-	$result = $stm->execute();
-	if (!$result) die("Cannot execute query.");
+	$stm = $this->db->prepare('SELECT * FROM user WHERE username = :username;');
+	$stm->bindValue(':username', $user);
+	if (!$stm->execute()) { die('user search failed'); };
 
-	$row = $result->fetchArray();
+	$row = $stm->fetch();
 	if (!$row) {
 	    return false;
 	}
 
-	return array('name' => $row['char'], 'email' => $row['mail'], 'grps' => explode(',', $row['grp']));
+	return array('name' => $row['charname'], 'email' => $row['mail'], 'grps' => explode(',', $row['grp']));
     }
 
     /**
@@ -156,11 +150,10 @@ class auth_plugin_authbrave extends DokuWiki_Auth_Plugin {
      * @return  bool
      */
     public function modifyUser($user, $changes) {
-	$stm = $this->db->prepare('UPDATE user SET mail = :mail WHERE user = :user;');
-	$stm->bindValue(':user', $user);
+	$stm = $this->db->prepare('UPDATE user SET mail = :mail WHERE username = :username;');
+	$stm->bindValue(':username', $user);
 	$stm->bindValue(':mail', $changes['mail']);
-	$result = $stm->execute();
-	if (!$result) die("Cannot execute query.");
+	if (!$stm->execute()) { die('user modification failed'); };
 	return true;
     }
 

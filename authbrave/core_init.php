@@ -1,9 +1,9 @@
 <?php
 
+require('config.php');
+
 define('USE_EXT', 'GMP');
 require 'vendor/autoload.php';
-
-require('config.php');
 
 try {
 
@@ -19,7 +19,7 @@ try {
 
 } catch(\Exception $e) {
     require('core_error.php');
-    exit(1);
+    die('core failed');
 }
 
 ?>

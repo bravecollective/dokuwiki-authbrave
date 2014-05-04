@@ -1,7 +1,8 @@
 <?php
 
-// directory needs to be writable by the webserver, but never be served to users
-$cfg_auth_db_path = 'path to your auth.db';
+$cfg_sql_url = 'mysql:host=localhost;dbname=mydb';
+$cfg_sql_user = 'user';
+$cfg sql_pass = 'pass';
 
 $cfg_core_endpoint = 'https://core.braveineve.com/api';
 
@@ -15,5 +16,10 @@ $cfg_url_auth_fail = $cfg_url_login;
 $cfg_core_application_id = '';
 $cfg_core_public_key = '';
 $cfg_core_private_key = '';
+
+$cfg_cookie_name = 'braveauth';
+$cfg_cookie_https_only = true;
+
+$cfg_expire_session = (60 * 60 * 24 * 1);
 
 ?>

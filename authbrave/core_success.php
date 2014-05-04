@@ -1,121 +1,107 @@
 <?php
 
+require('config.php');
+
 define('USE_EXT', 'GMP');
 require('vendor/autoload.php');
 
-require('config.php');
+// -----------------------------------------------
+
+function raiseError($log) {
+    require('core_error.php');
+    die($log);
+}
 
 // -----------------------------------------------
 
-$token = $_GET['token'];
-if (!empty($token)) {
-	$token = preg_replace("/[^A-Za-z0-9]/", '', $token);
-}
+$token = preg_replace("/[^A-Za-z0-9]/", '', $_GET['token']);
 if (empty($token)) {
-    header("Location: " . $cfg_url_auth_fail);
-    exit(1);
+    raiseError('no token');
 }
+
+// -----------------------------------------------
 
 require('../../../inc/PassHash.class.php');
-function getCookie() {
-    $cookie = $_COOKIE['braveauth'];
-    if (!empty($cookie)) {
-	$cookie = preg_replace("/[^A-Za-z0-9]/", '', $cookie);
-    }
-    if (empty($cookie)) {
-        $ph = new PassHash();
-        $cookie = $ph->gen_salt(32);
-        if (!headers_sent()) {
-            setcookie('braveauth', $cookie, time() + (1000 * 60 * 60 * 24 * 7), '/', null, true, true);
-        }
-    }
-    return $cookie;
+$ph = new PassHash();
+$cookie = $ph->gen_salt(32);
+if (!headers_sent()) {
+    setcookie($cfg_cookie_name, $cookie, time() + $cfg_expire_session, '/', null, $cfg_cookie_https_only, true);
 }
-
-$cookie = getCookie();
 
 // -----------------------------------------------
 
-$result = 0;
-
 try {
-
     $api = new Brave\API($cfg_core_endpoint, $cfg_core_application_id, $cfg_core_private_key, $cfg_core_public_key);
-
     $result = $api->core->info(array('token' => $token));
-
 } catch(\Exception $e) {
-    require('core_error.php');
-    exit(1);
+    raiseError('core failed');
 }
 
 $charid = $result->character->id;
-$char = $result->character->name;
-$user = strtolower($char);
-$user = preg_replace("/[^A-Za-z0-9]/", '_', $user);
-
+$charname = $result->character->name;
+$username = preg_replace("/[^A-Za-z0-9]/", '_', strtolower($charname));
 $corpid = $result->corporation->id;
-$corp = $result->corporation->name;
-
+$corpname = $result->corporation->name;
 $allianceid = $result->alliance->id;
-$alliance = $result->alliance->name;
-
+$alliancename = $result->alliance->name;
 $tags = $result->tags;
 
 // -----------------------------------------------
 
-$db = new SQLite3($cfg_auth_db_path . '/auth.db', SQLITE3_OPEN_READWRITE);
-if (!$db) die ('auth database init failed');
+try {
+    $db = new PDO($cfg_sql_url, $cfg_sql_user, $cfg_sql_pass);
+} catch (PDOException $e) {
+    raiseError('auth database init failed');
+}
 
 // -----------------------------------------------
 
-function addGroup($groups, $criteria) {
-    global $db;
+function addGroup($db, $groups, $criteria) {
     $stm = $db->prepare('SELECT grp FROM grp WHERE criteria = :criteria;');
     $stm->bindValue(':criteria', $criteria);
-    $result = $stm->execute();
-    if (!$result) die("Cannot execute query.");
-    while($res = $result->fetchArray()){
+    if (!$stm->execute()) { raiseError('group query failed'); };
+    while($res = $stm->fetch()){
 	$groups[] = $res['grp'];
     }
     return $groups;
 }
 
 $groups = array('user');
-$groups = addGroup($groups, 'charid_' . $charid);
-$groups = addGroup($groups, 'corpid_' . $corpid);
-$groups = addGroup($groups, 'allianceid_' . $allianceid);
+$groups = addGroup($db, $groups, 'charid_' . $charid);
+$groups = addGroup($db, $groups, 'corpid_' . $corpid);
+$groups = addGroup($db, $groups, 'allianceid_' . $allianceid);
 //TODO add tags from core, e.g. wiki_admin, wiki_public_author
 
 // -----------------------------------------------
 
 $stm = $db->prepare('SELECT charid FROM user where charid = :charid;');
 $stm->bindValue(':charid', $charid);
-$result = $stm->execute();
-if ($result->fetchArray()) {
-    $stm = $db->prepare('UPDATE user SET user = :user, groups = :groups, char = :char, corpid = :corpid, corp = :corp, allianceid = :allianceid, alliance = :alliance  WHERE charid = :charid;');
+if (!$stm->execute()) { raiseError('user query failed'); };
+
+if ($stm->fetch()) {
+    $stm = $db->prepare('UPDATE user SET username = :username, groups = :groups, charname = :charname, corpid = :corpid, corpname = :corpname, allianceid = :allianceid, alliancename = :alliancename  WHERE charid = :charid;');
 } else {
-    $stm = $db->prepare('INSERT INTO user (user, groups, charid, char, corpid, corp, allianceid, alliance) VALUES (:user, :groups, :charid, :char, :corpid, :corp, :allianceid, :alliance);');
+    $stm = $db->prepare('INSERT INTO user (username, groups, charid, charname, corpid, corpname, allianceid, alliancename) VALUES (:username, :groups, :charid, :charname, :corpid, :corpname, :allianceid, :alliancename);');
 }
-$stm->bindValue(':user', $user);
-$stm->bindValue(':groups', implode(',', $groups));
-$stm->bindValue(':charid', $charid);
-$stm->bindValue(':char', $char);
-$stm->bindValue(':corpid', $corpid);
-$stm->bindValue(':corp', $corp);
-$stm->bindValue(':allianceid', $allianceid);
-$stm->bindValue(':alliance', $alliance);
-$result = $stm->execute();
+$stm->bindValue(':username', $username, PDO::PARAM_STR);
+$stm->bindValue(':groups', implode(',', $groups), PDO::PARAM_STR);
+$stm->bindValue(':charid', $charid, PDO::PARAM_INT);
+$stm->bindValue(':charname', $charname, PDO::PARAM_STR);
+$stm->bindValue(':corpid', $corpid, PDO::PARAM_INT);
+$stm->bindValue(':corpname', $corpname, PDO::PARAM_STR);
+$stm->bindValue(':allianceid', $allianceid, PDO::PARAM_INT);
+$stm->bindValue(':alliancename', $alliancename, PDO::PARAM_STR);
+if (!$stm->execute()) { raiseError('user insert or update failed'); };
 
 $stm = $db->prepare('DELETE from session where sessionid = :sessionid;');
 $stm->bindValue(':sessionid', $cookie);
-$result = $stm->execute();
+if (!$stm->execute()) { raiseError('session cleanup failed'); };
 
 $stm = $db->prepare('INSERT INTO session (sessionid, charid, created) VALUES (:sessionid, :charid, :created)');
 $stm->bindValue(':sessionid', $cookie);
 $stm->bindValue(':charid', $charid);
 $stm->bindValue(':created', time());
-$result = $stm->execute();
+if (!$stm->execute()) { raiseError('session insert failed'); };
 
 // -----------------------------------------------
 
