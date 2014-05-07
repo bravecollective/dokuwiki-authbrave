@@ -12,8 +12,8 @@ CREATE TABLE `user` (
   `charname` varchar(45) NOT NULL,
   `corpid` bigint(20) NOT NULL,
   `corpname` varchar(45) NOT NULL,
-  `allianceid` bigint(20) NOT NULL,
-  `alliancename` varchar(45) NOT NULL,
+  `allianceid` bigint(20) DEFAULT NULL,
+  `alliancename` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`username`,`charid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8$$
 
