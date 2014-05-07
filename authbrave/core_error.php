@@ -12,7 +12,10 @@
 	<div style="text-align:left; color:#333333; font-size:12px; font-family:Sans Courier; font-weight:bold;">Sometimes the <i>BRAVE Collective Core Service</i> is a bit picky about all the crypto going on. Sorry for that...</div>
 	<br>
 	<div style="text-align:right; font-size:12px; font-family:Sans Courier;"><a href="
-	<?php print $cfg_url_login; ?>
+	<?php
+	    require('config.php');
+	    print $cfg_url_login;
+	?>
 	">restart</a> <a href="javascript:location.reload()">reload</a></div>
     </div>
 </body>
