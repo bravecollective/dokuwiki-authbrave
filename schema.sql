@@ -14,6 +14,7 @@ CREATE TABLE `user` (
   `corpname` varchar(45) NOT NULL,
   `allianceid` bigint(20) DEFAULT NULL,
   `alliancename` varchar(45) DEFAULT NULL,
+  `coretoken` varchar(45) NOT NULL,
   PRIMARY KEY (`username`,`charid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8$$
 

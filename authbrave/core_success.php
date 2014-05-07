@@ -79,9 +79,9 @@ $stm->bindValue(':charid', $charid);
 if (!$stm->execute()) { raiseError('user query failed'); };
 
 if ($stm->fetch()) {
-    $stm = $db->prepare('UPDATE user SET username = :username, groups = :groups, charname = :charname, corpid = :corpid, corpname = :corpname, allianceid = :allianceid, alliancename = :alliancename  WHERE charid = :charid;');
+    $stm = $db->prepare('UPDATE user SET username = :username, groups = :groups, charname = :charname, corpid = :corpid, corpname = :corpname, allianceid = :allianceid, alliancename = :alliancename, coretoken = :coretoken WHERE charid = :charid;');
 } else {
-    $stm = $db->prepare('INSERT INTO user (username, groups, charid, charname, corpid, corpname, allianceid, alliancename) VALUES (:username, :groups, :charid, :charname, :corpid, :corpname, :allianceid, :alliancename);');
+    $stm = $db->prepare('INSERT INTO user (username, groups, charid, charname, corpid, corpname, allianceid, alliancename, coretoken) VALUES (:username, :groups, :charid, :charname, :corpid, :corpname, :allianceid, :alliancename, :coretoken);');
 }
 $stm->bindValue(':username', $username, PDO::PARAM_STR);
 $stm->bindValue(':groups', implode(',', $groups), PDO::PARAM_STR);
@@ -91,6 +91,7 @@ $stm->bindValue(':corpid', $corpid, PDO::PARAM_INT);
 $stm->bindValue(':corpname', $corpname, PDO::PARAM_STR);
 $stm->bindValue(':allianceid', $allianceid, PDO::PARAM_INT);
 $stm->bindValue(':alliancename', $alliancename, PDO::PARAM_STR);
+$stm->bindValue(':coretoken', $token, PDO::PARAM_STR);
 if (!$stm->execute()) { raiseError('user insert or update failed'); };
 
 $stm = $db->prepare('DELETE from session where sessionid = :sessionid;');
