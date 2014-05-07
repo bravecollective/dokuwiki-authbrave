@@ -61,9 +61,12 @@ class auth_plugin_authbrave extends DokuWiki_Auth_Plugin {
 	    return;
 	}
 
-        $this->cando['modMail']     = true; // can emails be changed?
         $this->cando['external']    = true; // does the module do external auth checking?
         $this->cando['logout']      = true; // can the user logout again? (eg. not possible with HTTP auth)
+
+	// Even though it is possible to store and edit the mail address through this plugin
+	// it is considered a security risk as a user could subscribe to a namespace and continue to receive change notifications even though his core account has been revoked.
+        $this->cando['modMail']     = false; // can emails be changed?
 
         $this->cando['addUser']     = false; // can Users be created?
         $this->cando['delUser']     = false; // can Users be deleted?
@@ -150,11 +153,12 @@ class auth_plugin_authbrave extends DokuWiki_Auth_Plugin {
      * @return  bool
      */
     public function modifyUser($user, $changes) {
-	$stm = $this->db->prepare('UPDATE user SET mail = :mail WHERE username = :username;');
-	$stm->bindValue(':username', $user);
-	$stm->bindValue(':mail', $changes['mail']);
-	if (!$stm->execute()) { die('user modification failed'); };
-	return true;
+	// $stm = $this->db->prepare('UPDATE user SET mail = :mail WHERE username = :username;');
+	// $stm->bindValue(':username', $user);
+	// $stm->bindValue(':mail', $changes['mail']);
+	// if (!$stm->execute()) { die('user modification failed'); };
+	// return true;
+	return false;
     }
 
     /**
