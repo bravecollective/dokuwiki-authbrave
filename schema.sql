@@ -14,15 +14,22 @@ CREATE TABLE `user` (
   `corpname` varchar(45) NOT NULL,
   `allianceid` bigint(20) DEFAULT NULL,
   `alliancename` varchar(45) DEFAULT NULL,
-  `coretoken` varchar(45) NOT NULL,
-  PRIMARY KEY (`username`,`charid`)
+  `authtoken` varchar(45) NOT NULL,
+  `authcreated` bigint(20) NOT NULL,
+  `authlast` bigint(20) NOT NULL,
+  PRIMARY KEY (`charid`),
+  UNIQUE KEY `username_UNIQUE` (`username`),
+  UNIQUE KEY `charid_UNIQUE` (`charid`),
+  UNIQUE KEY `charname_UNIQUE` (`charname`),
+  UNIQUE KEY `authtoken_UNIQUE` (`authtoken`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8$$
 
 CREATE TABLE `session` (
   `sessionid` varchar(45) NOT NULL,
   `charid` bigint(20) NOT NULL,
   `created` bigint(20) NOT NULL,
-  PRIMARY KEY (`sessionid`)
+  PRIMARY KEY (`sessionid`),
+  UNIQUE KEY `sessionid_UNIQUE` (`sessionid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8$$
 
 CREATE TABLE `grp` (
