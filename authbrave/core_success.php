@@ -70,7 +70,9 @@ $groups = array('user');
 $groups = addGroup($db, $groups, 'charid_' . $charid);
 $groups = addGroup($db, $groups, 'corpid_' . $corpid);
 $groups = addGroup($db, $groups, 'allianceid_' . $allianceid);
-//TODO add tags from core, e.g. wiki_admin, wiki_public_author
+foreach ($tags as $tkey => $tvalue) {
+    $groups = addGroup($db, $groups, 'tag_' . $tvalue);
+}
 
 // -----------------------------------------------
 
