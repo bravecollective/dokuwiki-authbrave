@@ -2,7 +2,7 @@
 
 $cfg_sql_url = 'mysql:host=localhost;dbname=mydb';
 $cfg_sql_user = 'user';
-$cfg sql_pass = 'pass';
+$cfg_sql_pass = 'pass';
 
 $cfg_core_endpoint = 'https://core.braveineve.com/api';
 
