@@ -1,34 +1,24 @@
--------------------------------------------------------------
+1. Move authbrave folder to $dokuwiki/lib/plugins/
 
-Move authbrave folder to lib/plugins/
+2. Copy and edit config.php.dist to config.php
 
--------------------------------------------------------------
+3. Install dependencies
+	$ curl -sS https://getcomposer.org/installer | php
+	$ mv composer.phar /usr/local/bin/composer
+	$ composer install
 
-Edit and rename config.php.dist to config.php
+4. Setup database
+	$ mysql -u myuser -p < schema.sql
+	Any user with the core tag wiki.admin will be admin.
 
--------------------------------------------------------------
+5. Dokuwiki changes
 
-$ curl -sS https://getcomposer.org/installer | php
-$ mv composer.phar /usr/local/bin/composer
-$ composer install
+	$dokuwiki/inc/html.php : html_login()
+		require('lib/plugins/authbrave/config.php');
+		print '<a href="' . $cfg_url_auth_init . '">auth</a>';
 
--------------------------------------------------------------
-
-conf/dokuwiki.php
-    $conf['profileconfirm'] = 0;
-
-conf/local.php
+	$dokuwiki/conf/local.php
     $conf['authtype'] = 'authbrave';
-
-inc/html.php : html_login()
-     require('lib/plugins/authbrave/config.php');
-     print '<a href="' . $cfg_url_auth_init . '">auth</a>';
-
--------------------------------------------------------------
-
-$ mysql -u myuser -p < schema.sql
-
-Add your user to the list of admins:
-  INSERT INTO `grp` (`grp`, `criteria`) VALUES (`admin`, `charid_92938653`);
-
--------------------------------------------------------------
+		$conf['disableactions'] = 'register,resendpwd,profile,profile_delete,rss,subscribe,unsubscribe';
+		$conf['signature'] = ' --- //[[user:@USER@|@NAME@]] @DATE@//';
+		$conf['showuseras'] = 'username_link';
