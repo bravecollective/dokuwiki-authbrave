@@ -33,6 +33,8 @@ CREATE TABLE `session` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8$$
 
 CREATE TABLE `grp` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `grp` varchar(45) NOT NULL,
-  `criteria` varchar(45) NOT NULL
+  `criteria` varchar(45) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8$$
