@@ -36,5 +36,9 @@ CREATE TABLE `grp` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `grp` varchar(45) NOT NULL,
   `criteria` varchar(45) NOT NULL,
+  `comment` varchar(45) DEFAULT NULL,	
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8$$
+
+INSERT INTO `grp` (`grp`, `criteria`) VALUES ('admin', 'tag_wiki.admin');$$
+
