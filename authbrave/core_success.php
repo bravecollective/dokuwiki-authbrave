@@ -73,6 +73,7 @@ $groups = addGroup($db, $groups, 'allianceid_' . $allianceid);
 foreach ($tags as $tkey => $tvalue) {
     $groups = addGroup($db, $groups, 'tag_' . $tvalue);
 }
+$groups = array_unique($groups);
 
 // -----------------------------------------------
 
