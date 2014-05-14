@@ -66,7 +66,6 @@ function addGroup($db, $groups, $criteria) {
     return $groups;
 }
 
-$groups = array('user');
 $groups = addGroup($db, $groups, 'charid_' . $charid);
 $groups = addGroup($db, $groups, 'corpid_' . $corpid);
 $groups = addGroup($db, $groups, 'allianceid_' . $allianceid);
@@ -74,6 +73,30 @@ foreach ($tags as $tkey => $tvalue) {
     $groups = addGroup($db, $groups, 'tag_' . $tvalue);
 }
 $groups = array_unique($groups);
+
+// -----------------------------------------------
+
+function addBan($db, $banned, $criteria) {
+    $stm = $db->prepare('SELECT id FROM grp WHERE criteria = :criteria;');
+    $stm->bindValue(':criteria', $criteria);
+    if (!$stm->execute()) { raiseError('ban query failed'); };
+    if ($stm->fetch()) {
+	return true;
+    }
+    return $banned;
+}
+
+$banned = false;
+$banned = addBan($db, $banned, 'charid_' . $charid);
+$banned = addBan($db, $banned, 'corpid_' . $corpid);
+$banned = addBan($db, $banned, 'allianceid_' . $allianceid);
+foreach ($tags as $tkey => $tvalue) {
+    $banned = addBan($db, $banned, 'tag_' . $tvalue);
+}
+
+if ($banned) {
+    $groups = array('user');
+}
 
 // -----------------------------------------------
 
