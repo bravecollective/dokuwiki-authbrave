@@ -66,6 +66,7 @@ function addGroup($db, $groups, $criteria) {
     return $groups;
 }
 
+$groups = array('user');
 $groups = addGroup($db, $groups, 'charid_' . $charid);
 $groups = addGroup($db, $groups, 'corpid_' . $corpid);
 $groups = addGroup($db, $groups, 'allianceid_' . $allianceid);
