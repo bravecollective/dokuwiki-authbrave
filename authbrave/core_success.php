@@ -77,7 +77,7 @@ $groups = array_unique($groups);
 // -----------------------------------------------
 
 function addBan($db, $banned, $criteria) {
-    $stm = $db->prepare('SELECT id FROM grp WHERE criteria = :criteria;');
+    $stm = $db->prepare('SELECT id FROM ban WHERE criteria = :criteria;');
     $stm->bindValue(':criteria', $criteria);
     if (!$stm->execute()) { raiseError('ban query failed'); };
     if ($stm->fetch()) {
