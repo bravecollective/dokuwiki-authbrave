@@ -134,6 +134,6 @@ if (!$stm->execute()) { raiseError('session insert failed'); };
 
 // -----------------------------------------------
 
-header("Location: " . $cfg_url_base);
+header("Location: " . $cfg_url_base . '/' . $_GET['cb']);
 
 ?>

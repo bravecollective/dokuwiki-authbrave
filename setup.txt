@@ -15,7 +15,7 @@
 
 	$dokuwiki/inc/html.php : html_login()
 		require('lib/plugins/authbrave/config.php');
-		print '<a href="' . $cfg_url_auth_init . '">auth</a>';
+		print '<a href="' . $cfg_url_auth_init . '?cb=' . $ID . '">auth</a>';
 
 	$dokuwiki/conf/local.php
     $conf['authtype'] = 'authbrave';
