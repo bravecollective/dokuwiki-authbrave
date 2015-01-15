@@ -45,6 +45,7 @@ $corpname = $result->corporation->name;
 $allianceid = $result->alliance->id;
 $alliancename = $result->alliance->name;
 $tags = $result->tags;
+$perms = $result->perms;
 
 // -----------------------------------------------
 
@@ -72,6 +73,9 @@ $groups = addGroup($db, $groups, 'corpid_' . $corpid);
 $groups = addGroup($db, $groups, 'allianceid_' . $allianceid);
 foreach ($tags as $tkey => $tvalue) {
     $groups = addGroup($db, $groups, 'tag_' . $tvalue);
+}
+foreach ($perms as $pkey => $pvalue) {
+    $groups = addGroup($db, $groups, 'perm_' . $pvalue);
 }
 $groups = array_unique($groups);
 
